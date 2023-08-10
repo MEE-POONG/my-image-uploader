@@ -15,7 +15,7 @@ const UploadPage = () => {
             const submitEvent = e as SubmitEvent; // Explicitly cast to SubmitEvent
             const formData = new FormData(form);
             try {
-                const response = await fetch('/api/upload', {
+                const response = await fetch('https://upload-image.me-prompt-technology.com/', {
                     method: 'POST',
                     body: formData
                 });
@@ -43,7 +43,9 @@ const UploadPage = () => {
         <div>
             <form ref={formRef} action="/api/upload" method="post" encType="multipart/form-data">
                 <input type="file" name="image" />
-                <input type="submit" value="Upload" />
+                <button>
+                    <input type="submit" value="Upload" />
+                </button>
             </form>
             <div>
                 <img ref={imageRef} id="uploadedImage" src="" alt="Uploaded Image" style={{ display: 'none', width: '300px' }} />
