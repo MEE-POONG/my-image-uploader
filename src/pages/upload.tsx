@@ -1,55 +1,34 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 
 const UploadPage = () => {
-    const formRef = useRef<HTMLFormElement>(null);
-    const imageRef = useRef<HTMLImageElement>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null); // ระบุประเภทของ ref
 
-    useEffect(() => {
-        const form = formRef.current;
+    const handleUpload = async () => {
+        if (fileInputRef.current) {
+            const file = fileInputRef.current.files?.[0]; // เพิ่ม ? หลัง files เพื่อป้องกันค่า null หรือ undefined
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
 
-        if (!form) return;
+                try {
+                    const response = await fetch('https://upload-image.me-prompt-technology.com/', {
+                        method: 'POST',
+                        body: formData,
+                    });
 
-        const handleFormSubmit = async (e: Event) => {
-            e.preventDefault();
-
-            const submitEvent = e as SubmitEvent; // Explicitly cast to SubmitEvent
-            const formData = new FormData(form);
-            try {
-                const response = await fetch('https://upload-image.me-prompt-technology.com/', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-
-                const imageUrl = data.url;
-                const imageElement = imageRef.current;
-                if (imageElement) {
-                    imageElement.src = imageUrl;
-                    imageElement.style.display = 'block';
+                    const responseData = await response.json();
+                    console.log(responseData);
+                } catch (error) {
+                    console.error(error);
                 }
-            } catch (error) {
-                console.error('Error uploading the image:', error);
             }
-        };
-
-        form.addEventListener('submit', handleFormSubmit);
-
-        return () => {
-            form.removeEventListener('submit', handleFormSubmit);
-        };
-    }, []);
+        }
+    };
 
     return (
         <div>
-            <form ref={formRef} action="/api/upload" method="post" encType="multipart/form-data">
-                <input type="file" name="image" />
-                <button>
-                    <input type="submit" value="Upload" />
-                </button>
-            </form>
-            <div>
-                <img ref={imageRef} id="uploadedImage" src="" alt="Uploaded Image" style={{ display: 'none', width: '300px' }} />
-            </div>
+            <input ref={fileInputRef} type="file" name="image" />
+            <button onClick={handleUpload}>Upload</button>
         </div>
     );
 };
